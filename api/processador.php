@@ -36,14 +36,17 @@ if ($item) {
 
     $arquivoHistorico = rtrim($caminho, '/') . "/historico_downloads.txt";
 
-    // Chamada direta ao comando global yt-dlp (o ffmpeg global é detetado automaticamente)
+    // Chamada direta ao comando global yt-dlp
     $ytdlp = "yt-dlp";
     
-    // Obtém o caminho absoluto do arquivo cookies.txt que está na raiz do projeto
+    // Obtém o caminho absoluto do arquivo cookies.txt
     $caminhoCookies = realpath(__DIR__ . '/../cookies.txt');
     
-    // Adiciona o parâmetro --cookies apontando para o arquivo de texto
-    $comando = "$ytdlp --js-runtimes node --cookies " . escapeshellarg($caminhoCookies) . " --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
+    // Caminho exato do Node.js descoberto no servidor
+    $caminhoNode = '/usr/bin/node';
+    
+    // Monta o comando informando o runtime do JavaScript explicitamente
+    $comando = "$ytdlp --js-runtimes node:" . escapeshellarg($caminhoNode) . " --cookies " . escapeshellarg($caminhoCookies) . " --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
 
     $formatosAudio = ['mp3', 'm4a', 'flac', 'wav'];
     if (in_array($formato, $formatosAudio)) {
