@@ -1,5 +1,5 @@
 let globalMusicGroups = {};
-let caminhoNavegacao = "C:\\Users"; // Declarado apenas uma vez aqui no topo!
+let caminhoNavegacao = "/home"; // Padrão Linux em vez de C:\Users
 
 document.addEventListener("DOMContentLoaded", () => {
   const caminhoSalvo = localStorage.getItem("caminhoBaseSalvo");
@@ -155,8 +155,8 @@ function renderizarGradePastas() {
 
   for (const pasta in globalMusicGroups) {
     const musicas = globalMusicGroups[pasta];
-    const nomePastaCurto = pasta.split("\\").pop() || pasta;
-
+    // Alterado de "\\" para "/" para Linux
+    const nomePastaCurto = pasta.split("/").pop() || pasta;
     const folderDiv = document.createElement("div");
     folderDiv.className = "win-folder";
     folderDiv.innerHTML = `
@@ -174,7 +174,8 @@ function renderizarConteudoDaPasta(pasta) {
   gridMaster.innerHTML = "";
   gridMaster.className = "";
 
-  const nomePastaCurto = pasta.split("\\").pop() || pasta;
+  // Alterado de "\\" para "/" para Linux
+  const nomePastaCurto = pasta.split("/").pop() || pasta;
 
   const backBar = document.createElement("div");
   backBar.className = "folder-header-bar";
@@ -201,9 +202,12 @@ function renderizarConteudoDaPasta(pasta) {
     card.innerHTML = `
             <img src="${miniaturaUrl}" class="card-thumb" alt="Capa">
             <div class="card-info">
-                <a href="https://youtube.com/watch?v=${musica.youtube_id}" target="_blank" id="${idElemento}" class="card-title" title="Abrir no YouTube">A pesquisar nome...</a>
-                <div class="card-meta">
+                <a href="https://youtube.com/watch?v=${musica.youtube_id}" target="_blank" id="${idElemento}" class="card-title" title="Abrir no YouTube">Pesquisando nome...</a>
+                <div class="card-meta" style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
                     <span><i class="fa-regular fa-clock"></i> ${dataFormatada}</span>
+                    <a href="api/baixar.php?id=${musica.youtube_id}" class="btn-download-pc" style="background: var(--accent-blue); color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.85rem;">
+                        <i class="fa-solid fa-download"></i> Baixar
+                    </a>
                 </div>
             </div>
         `;
@@ -229,8 +233,7 @@ function renderizarConteudoDaPasta(pasta) {
 // === LÓGICA DO EXPLORADOR DE PASTAS EMBUTIDO ===
 function abrirSeletorPastas() {
   const inputAtual = document.getElementById("caminho").value;
-  caminhoNavegacao = inputAtual ? inputAtual : "C:\\Users";
-
+  caminhoNavegacao = inputAtual ? inputAtual : "/home"; // Padrão Linux
   document.getElementById("modalPastas").style.display = "flex";
   carregarDiretorios(caminhoNavegacao);
 }
@@ -272,7 +275,9 @@ function carregarDiretorios(dir) {
 }
 
 function navegarPastaAcima() {
-  carregarDiretorios(caminhoNavegacao + "\\..");
+  // Alterado para adicionar o delimitador e ".." conforme sintaxe universal,
+  // garantindo que no Linux funciona corretamente
+  carregarDiretorios(caminhoNavegacao + "/..");
 }
 
 function confirmarPasta() {

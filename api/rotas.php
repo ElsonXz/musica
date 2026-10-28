@@ -8,11 +8,9 @@ if ($acao == 'adicionar_fila') {
     $dados = json_decode(file_get_contents("php://input"));
 
     if (!empty($dados->url) && !empty($dados->caminho)) {
-
         $caminho_final = $dados->caminho;
-
         if (isset($dados->nome_pasta) && trim($dados->nome_pasta) !== '') {
-            $caminho_final = rtrim($caminho_final, '\\/') . DIRECTORY_SEPARATOR . trim($dados->nome_pasta);
+            $caminho_final = rtrim($caminho_final, '/') . '/' . trim($dados->nome_pasta);
         }
 
         $database = new Database();
@@ -31,7 +29,7 @@ if ($acao == 'adicionar_fila') {
         if ($stmt->execute()) {
             echo json_encode(['sucesso' => true]);
         } else {
-            echo json_encode(['sucesso' => false, 'erro' => 'Falha ao salvar no banco.']);
+            echo json_encode(['sucesso' => false, 'erro' => 'Falha ao guardar na base de dados.']);
         }
     } else {
         echo json_encode(['sucesso' => false, 'erro' => 'Dados incompletos.']);
@@ -42,7 +40,6 @@ if ($acao == 'listar_musicas') {
     try {
         $database = new Database();
         $db = $database->getConnection();
-
         if (!$db) {
             echo json_encode([]);
             exit;
@@ -62,60 +59,47 @@ if ($acao == 'listar_musicas') {
     }
     exit;
 }
-// ==========================================
-// BLOCO 3: LISTAR PASTAS (EXPLORADOR)
-// ==========================================
-if ($acao == 'listar_diretorios') {
-    // Inicia na pasta do utilizador atual ou no C:\ raiz
-    $dir = isset($_GET['dir']) && !empty($_GET['dir']) ? $_GET['dir'] : 'C:\\Users';
-    $dir = realpath($dir) ?: $dir;
 
+if ($acao == 'listar_diretorios') {
+    // No Linux, /home é um bom ponto de partida padrão para utilizadores
+    $dir = isset($_GET['dir']) && !empty($_GET['dir']) ? $_GET['dir'] : '/home';
+    $dir = realpath($dir) ?: $dir;
     $pastas = [];
 
     if (is_dir($dir)) {
         $itens = scandir($dir);
         foreach ($itens as $item) {
-
-            // 1. Ignorar ocultos e sistema (. e $)
-            if (substr($item, 0, 1) === '.' || substr($item, 0, 1) === '$') {
+            if (substr($item, 0, 1) === '.') {
                 continue;
             }
+            $caminho_completo = rtrim($dir, '/') . '/' . $item;
 
-            $caminho_completo = $dir . DIRECTORY_SEPARATOR . $item;
-
-            // 2. is_dir() confirma que é pasta, !is_link() esconde atalhos fantasma
             if (is_dir($caminho_completo) && !is_link($caminho_completo)) {
-
-                // 3. Lista negra expandida com as pastas invisíveis do C:\Users
+                // Ocultar pastas de sistema críticas do Linux por segurança
                 $pastas_sistema = [
-                    'AppData',
-                    'ProgramData',
-                    'System Volume Information',
-                    'Recovery',
-                    'PerfLogs',
-                    'Ambiente de Impressão',
-                    'Ambiente de Rede',
-                    'Configurações Locais',
-                    'Cookies',
-                    'Dados de Aplicativos',
-                    'Menu Iniciar',
-                    'Modelos',
-                    'Recent',
-                    'SendTo',
-                    'Histórico',
-                    'NetHood',
-                    'PrintHood',
-                    'Local Settings',
-                    'Application Data',
-                    'My Documents',
-                    'Default',
-                    'Default User',
-                    'Usuário Padrão',
-                    'WDAGUtilityAccount',
-                    'All Users'
+                    'bin',
+                    'boot',
+                    'dev',
+                    'etc',
+                    'lib',
+                    'lib32',
+                    'lib64',
+                    'libx32',
+                    'lost+found',
+                    'media',
+                    'mnt',
+                    'proc',
+                    'root',
+                    'run',
+                    'sbin',
+                    'snap',
+                    'srv',
+                    'sys',
+                    'usr'
                 ];
 
-                if (in_array($item, $pastas_sistema)) {
+                // Se a pasta atual for a raiz (/) e for uma pasta de sistema, ocultamos
+                if ($dir === '/' && in_array($item, $pastas_sistema)) {
                     continue;
                 }
 

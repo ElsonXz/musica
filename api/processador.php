@@ -1,10 +1,9 @@
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-
 require_once '../config/Database.php';
-set_time_limit(0);
 
+set_time_limit(0);
 while (ob_get_level() > 0) {
     ob_end_clean();
 }
@@ -31,47 +30,44 @@ if ($item) {
     $stmtUpdate = $db->prepare($update);
     $stmtUpdate->execute([':id' => $filaId]);
 
-    // --- INÍCIO DA CONFIGURAÇÃO DO COMANDO (COM NUMERAÇÃO INTELIGENTE) ---
-    $caminhoBin = "C:\\xampp\\htdocs\\musica\\bin\\";
-    $ytdlp = $caminhoBin . "yt-dlp.exe";
-    $ffmpeg = "C:\\xampp\\htdocs\\musica\\bin";
-
     if (!is_dir($caminho)) {
         mkdir($caminho, 0777, true);
     }
 
-    $arquivoHistorico = $caminho . "\\historico_downloads.txt";
+    $arquivoHistorico = rtrim($caminho, '/') . "/historico_downloads.txt";
 
-    
-    $comando = "\"$ytdlp\" --newline --ffmpeg-location \"$ffmpeg\" --add-metadata --download-archive \"$arquivoHistorico\" ";
+    // Chamada direta ao comando global yt-dlp (o ffmpeg global é detetado automaticamente)
+    $ytdlp = "yt-dlp";
+    $comando = "$ytdlp --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
 
     $formatosAudio = ['mp3', 'm4a', 'flac', 'wav'];
-
     if (in_array($formato, $formatosAudio)) {
-        $comando .= "-f bestaudio --extract-audio --audio-format $formato ";
+        $comando .= "-f bestaudio --extract-audio --audio-format " . escapeshellarg($formato) . " ";
         if ($qualidade === '320k' || $qualidade === '192k') {
-            $comando .= "--audio-quality $qualidade ";
+            $comando .= "--audio-quality " . escapeshellarg($qualidade) . " ";
         } else {
             $comando .= "--audio-quality 0 ";
         }
     } else {
         if ($qualidade === '1080' || $qualidade === '720') {
-            $comando .= "-f \"bestvideo[height<=$qualidade]+bestaudio/best\" --merge-output-format $formato ";
+            $comando .= "-f \"bestvideo[height<=$qualidade]+bestaudio/best\" --merge-output-format " . escapeshellarg($formato) . " ";
         } else {
-            $comando .= "-f \"bestvideo+bestaudio/best\" --merge-output-format $formato ";
+            $comando .= "-f \"bestvideo+bestaudio/best\" --merge-output-format " . escapeshellarg($formato) . " ";
         }
     }
 
+    $caminhoFormatado = escapeshellarg(rtrim($caminho, '/') . "/%(title)s [%(id)s].%(ext)s");
+    $caminhoPlaylist = escapeshellarg(rtrim($caminho, '/') . "/%(playlist_index)s - %(title)s [%(id)s].%(ext)s");
+
     if ($tipo === 'playlist') {
-        $comando .= "--yes-playlist -o \"$caminho\\%(playlist_index)s - %(title)s.%(ext)s\" ";
+        $comando .= "--yes-playlist -o $caminhoPlaylist ";
     } else {
-        $comando .= "--no-playlist -o \"$caminho\\%(title)s.%(ext)s\" ";
+        $comando .= "--no-playlist -o $caminhoFormatado ";
     }
 
-    $comando .= "\"$url\"";
-    // --- FIM DA CONFIGURAÇÃO DO COMANDO ---
+    $comando .= escapeshellarg($url);
 
-    echo "A iniciar o processamento...\n";
+    echo "A iniciar o processamento utilizando pacotes do sistema...\n";
     flush();
 
     $handle = popen($comando . " 2>&1", "r");
