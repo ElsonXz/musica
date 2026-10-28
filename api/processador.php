@@ -39,14 +39,11 @@ if ($item) {
     // Chamada direta ao comando global yt-dlp
     $ytdlp = "yt-dlp";
     
-    // Obtém o caminho absoluto do arquivo cookies.txt
-    $caminhoCookies = realpath(__DIR__ . '/../cookies.txt');
-    
-    // Caminho exato do Node.js
+    // Caminho exato do Node.js (caso precise para resolver desafios)
     $caminhoNode = '/usr/bin/node';
     
-    // Força o uso do Node.js para resolver o EJS e usa o cliente web com os cookies válidos
-    $comando = "$ytdlp --js-runtimes node:" . escapeshellarg($caminhoNode) . " --extractor-args \"youtube:player_client=web\" --cookies " . escapeshellarg($caminhoCookies) . " --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
+    // Usa o cliente mweb (Mobile Web) que não exige login/cookies para vídeos públicos
+    $comando = "$ytdlp --js-runtimes node:" . escapeshellarg($caminhoNode) . " --extractor-args \"youtube:player_client=mweb\" --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
 
     $formatosAudio = ['mp3', 'm4a', 'flac', 'wav'];
     if (in_array($formato, $formatosAudio)) {
