@@ -43,7 +43,7 @@ if ($item) {
     $caminhoCookies = realpath(__DIR__ . '/../cookies.txt');
     
     // Adiciona o parâmetro --cookies apontando para o arquivo de texto
-    $comando = "$ytdlp --js-runtimes nodejs --cookies " . escapeshellarg($caminhoCookies) . " --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
+    $comando = "$ytdlp --js-runtimes node --cookies " . escapeshellarg($caminhoCookies) . " --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
 
     $formatosAudio = ['mp3', 'm4a', 'flac', 'wav'];
     if (in_array($formato, $formatosAudio)) {
