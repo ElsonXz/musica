@@ -38,7 +38,12 @@ if ($item) {
 
     // Chamada direta ao comando global yt-dlp (o ffmpeg global é detetado automaticamente)
     $ytdlp = "yt-dlp";
-    $comando = "$ytdlp --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
+    
+    // Obtém o caminho absoluto do arquivo cookies.txt que está na raiz do projeto
+    $caminhoCookies = realpath(__DIR__ . '/../cookies.txt');
+    
+    // Adiciona o parâmetro --cookies apontando para o arquivo de texto
+    $comando = "$ytdlp --cookies " . escapeshellarg($caminhoCookies) . " --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
 
     $formatosAudio = ['mp3', 'm4a', 'flac', 'wav'];
     if (in_array($formato, $formatosAudio)) {
