@@ -6,19 +6,16 @@ header('Content-Type: application/json');
 
 if ($acao == 'adicionar_fila') {
     $dados = json_decode(file_get_contents("php://input"));
-
     if (!empty($dados->url) && !empty($dados->caminho)) {
         $caminho_final = $dados->caminho;
         if (isset($dados->nome_pasta) && trim($dados->nome_pasta) !== '') {
             $caminho_final = rtrim($caminho_final, '/') . '/' . trim($dados->nome_pasta);
         }
-
         $database = new Database();
         $db = $database->getConnection();
 
         $query = "INSERT INTO filas_download (url, tipo, caminho_salvamento, formato, qualidade) 
-                  VALUES (:url, :tipo, :caminho, :formato, :qualidade)";
-
+                   VALUES (:url, :tipo, :caminho, :formato, :qualidade)";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':url', $dados->url);
         $stmt->bindParam(':tipo', $dados->tipo);
@@ -34,6 +31,7 @@ if ($acao == 'adicionar_fila') {
     } else {
         echo json_encode(['sucesso' => false, 'erro' => 'Dados incompletos.']);
     }
+    exit;
 }
 
 if ($acao == 'listar_musicas') {
@@ -44,10 +42,8 @@ if ($acao == 'listar_musicas') {
             echo json_encode([]);
             exit;
         }
-
         $query = "SELECT youtube_id, titulo, caminho_arquivo, data_download FROM musicas ORDER BY data_download DESC LIMIT 200";
         $stmt = $db->query($query);
-
         if ($stmt) {
             $musicas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             echo json_encode($musicas);
@@ -61,7 +57,6 @@ if ($acao == 'listar_musicas') {
 }
 
 if ($acao == 'listar_diretorios') {
-    // No Linux, /home é um bom ponto de partida padrão para utilizadores
     $dir = isset($_GET['dir']) && !empty($_GET['dir']) ? $_GET['dir'] : '/home';
     $dir = realpath($dir) ?: $dir;
     $pastas = [];
@@ -73,9 +68,7 @@ if ($acao == 'listar_diretorios') {
                 continue;
             }
             $caminho_completo = rtrim($dir, '/') . '/' . $item;
-
             if (is_dir($caminho_completo) && !is_link($caminho_completo)) {
-                // Ocultar pastas de sistema críticas do Linux por segurança
                 $pastas_sistema = [
                     'bin',
                     'boot',
@@ -97,12 +90,9 @@ if ($acao == 'listar_diretorios') {
                     'sys',
                     'usr'
                 ];
-
-                // Se a pasta atual for a raiz (/) e for uma pasta de sistema, ocultamos
                 if ($dir === '/' && in_array($item, $pastas_sistema)) {
                     continue;
                 }
-
                 $pastas[] = [
                     'caminho' => $caminho_completo,
                     'nome' => $item
@@ -110,7 +100,6 @@ if ($acao == 'listar_diretorios') {
             }
         }
     }
-
     echo json_encode([
         'atual' => $dir,
         'pastas' => $pastas

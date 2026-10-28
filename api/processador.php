@@ -2,8 +2,8 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 require_once '../config/Database.php';
-
 set_time_limit(0);
+
 while (ob_get_level() > 0) {
     ob_end_clean();
 }
@@ -36,14 +36,10 @@ if ($item) {
 
     $arquivoHistorico = rtrim($caminho, '/') . "/historico_downloads.txt";
 
-    // Chamada direta ao comando global yt-dlp
     $ytdlp = "yt-dlp";
-    
-    // Caminho exato do Node.js (caso precise para resolver desafios)
-    $caminhoNode = '/usr/bin/node';
-    
-    // Usa o cliente mweb (Mobile Web) que não exige login/cookies para vídeos públicos
-    $comando = "$ytdlp --js-runtimes node:" . escapeshellarg($caminhoNode) . " --extractor-args \"youtube:player_client=mweb\" --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
+
+    // CORREÇÃO: Passar o node corretamente ou deixar o yt-dlp gerir se estiver no PATH
+    $comando = "$ytdlp --extractor-args \"youtube:player_client=mweb,android\" --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
 
     $formatosAudio = ['mp3', 'm4a', 'flac', 'wav'];
     if (in_array($formato, $formatosAudio)) {
@@ -99,7 +95,6 @@ if ($item) {
                 $youtubeId = $partes[1];
                 $checaMusica = $db->prepare("SELECT id FROM musicas WHERE youtube_id = :yid AND caminho_arquivo = :cam");
                 $checaMusica->execute([':yid' => $youtubeId, ':cam' => $caminho]);
-
                 if ($checaMusica->rowCount() == 0) {
                     $insereMusica = $db->prepare("INSERT INTO musicas (youtube_id, fila_id, titulo, caminho_arquivo) VALUES (:yid, :fid, :titulo, :caminho)");
                     $insereMusica->execute([
