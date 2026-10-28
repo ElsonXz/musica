@@ -42,10 +42,10 @@ if ($item) {
     // Obtém o caminho absoluto do arquivo cookies.txt
     $caminhoCookies = realpath(__DIR__ . '/../cookies.txt');
     
-    // Caminho exato do Node.js descoberto no servidor
+    // Caminho exato do Node.js
     $caminhoNode = '/usr/bin/node';
     
-    // Monta o comando informando o runtime do JavaScript explicitamente
+    // Monta o comando utilizando o runtime explicitamente
     $comando = "$ytdlp --js-runtimes node:" . escapeshellarg($caminhoNode) . " --cookies " . escapeshellarg($caminhoCookies) . " --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
 
     $formatosAudio = ['mp3', 'm4a', 'flac', 'wav'];
