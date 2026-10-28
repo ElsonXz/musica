@@ -38,8 +38,11 @@ if ($item) {
 
     $ytdlp = "yt-dlp";
 
-    // CORREÇÃO: Passar o node corretamente ou deixar o yt-dlp gerir se estiver no PATH
-    $comando = "$ytdlp --extractor-args \"youtube:player_client=mweb,android\" --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
+    // Caminho para o ficheiro de cookies (já existente na raiz do projeto)
+    $caminhoCookies = __DIR__ . '/../cookies.txt'; 
+
+    // Montagem do comando unificado (com cookies e extratores)
+    $comando = "$ytdlp --cookies " . escapeshellarg($caminhoCookies) . " --extractor-args \"youtube:player_client=mweb,android\" --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
 
     $formatosAudio = ['mp3', 'm4a', 'flac', 'wav'];
     if (in_array($formato, $formatosAudio)) {
