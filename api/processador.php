@@ -38,11 +38,10 @@ if ($item) {
 
     $ytdlp = "yt-dlp";
 
-    // Caminho para o ficheiro de cookies (já existente na raiz do projeto)
     $caminhoCookies = __DIR__ . '/../cookies.txt'; 
 
-    // Montagem do comando unificado (com cookies e extratores)
-    $comando = "$ytdlp --cookies " . escapeshellarg($caminhoCookies) . " --extractor-args \"youtube:player_client=mweb,android\" --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
+    // CORREÇÃO: Usar apenas o cliente mweb (compatível com cookies) e garantir suporte ao Node.js
+    $comando = "$ytdlp --cookies " . escapeshellarg($caminhoCookies) . " --extractor-args \"youtube:player_client=mweb\" --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
 
     $formatosAudio = ['mp3', 'm4a', 'flac', 'wav'];
     if (in_array($formato, $formatosAudio)) {
