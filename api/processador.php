@@ -42,8 +42,11 @@ if ($item) {
     // Obtém o caminho absoluto do arquivo cookies.txt
     $caminhoCookies = realpath(__DIR__ . '/../cookies.txt');
     
-    // Utiliza os clientes alternativos do YouTube para evitar o erro de assinatura do EJS
-    $comando = "$ytdlp --extractor-args \"youtube:player_client=android,web\" --cookies " . escapeshellarg($caminhoCookies) . " --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
+    // Caminho exato do Node.js
+    $caminhoNode = '/usr/bin/node';
+    
+    // Força o uso do Node.js para resolver o EJS e usa o cliente web com os cookies válidos
+    $comando = "$ytdlp --js-runtimes node:" . escapeshellarg($caminhoNode) . " --extractor-args \"youtube:player_client=web\" --cookies " . escapeshellarg($caminhoCookies) . " --newline --add-metadata --download-archive " . escapeshellarg($arquivoHistorico) . " ";
 
     $formatosAudio = ['mp3', 'm4a', 'flac', 'wav'];
     if (in_array($formato, $formatosAudio)) {
